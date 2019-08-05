@@ -6,6 +6,8 @@ const setUp = (context) => {
 
    const repo = context.gitP(context.root);
    return repo.init()
+      .then(() => repo.addConfig('user.name', 'Some One'))
+      .then(() => repo.addConfig('user.email', 'Some@One.com'))
       .then(() => context.file('src', 'a.txt', 'fie content'))
       .then(() => repo.add('src/a.txt'))
       .then(() => repo.commit('commit line one\ncommit line two\n'))

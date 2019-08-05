@@ -19,6 +19,8 @@ const setUp = (context) => {
 
 
    return context.gitP(context.root).init()
+      .then(() => git.addConfig('user.name', 'Some One'))
+      .then(() => git.addConfig('user.email', 'Some@One.com'))
       .then(() => git.checkout(['-b', 'first']))
       .then(() => {
          FS.writeFileSync(`${context.root}/aaa.aaa`, 'Some\nFile content\nhere', 'utf8');

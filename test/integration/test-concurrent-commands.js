@@ -19,6 +19,8 @@ const setUp = (context) => {
 
       return git.init()
          .then(() => git.add(thing))
+         .then(() => git.addConfig('user.name', 'Some One'))
+         .then(() => git.addConfig('user.email', 'Some@One.com'))
          .then(() => git.commit(thing))
          .then(() => git.raw(['checkout', '-b', thing]))
          .then(() => delay())

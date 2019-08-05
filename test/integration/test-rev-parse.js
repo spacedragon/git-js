@@ -8,6 +8,8 @@ const setUp = (context) => {
    return repo.init()
       .then(() => context.file('src', 'file.txt', 'fie content'))
       .then(() => repo.add('src/file.txt'))
+      .then(() => repo.addConfig('user.name', 'Some One'))
+      .then(() => repo.addConfig('user.email', 'Some@One.com'))
       .then(() => repo.commit('first commit'))
       .then((commit) => context.commit = commit)
       ;

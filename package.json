@@ -14,7 +14,9 @@
   },
   "devDependencies": {
     "@kwsites/test-runner": "^0.1.1",
-    "sinon": "^7.3.2"
+    "aws-sdk": "^2.503.0",
+    "sinon": "^7.3.2",
+    "targz": "^1.0.1"
   },
   "keywords": [
     "git",
