@@ -22,6 +22,8 @@ module.exports = function (baseDir, useSystemGit) {
                 'GIT_EXEC_PATH': path.join(git_dir, 'libexec/git-core'),
                 'PREFIX': git_dir
             })
+        } else {
+            throw new Error("Couldn't find embed git binaries.")
         }
     }
 
