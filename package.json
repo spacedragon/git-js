@@ -1,12 +1,12 @@
 {
-  "name": "simple-git",
-  "description": "Simple GIT interface for node.js",
+  "name": "@lastic/simple-git",
+  "description": "Simple GIT interface for node.js, bundled with native git natived",
   "version": "1.124.0",
   "author": "Steve King <steve@mydev.co>",
   "contributors": [
     {
-      "name": "Steve King",
-      "email": "steve@mydev.co"
+      "name": "Yulong Huang",
+      "email": "yulong.huang@elastic.co"
     }
   ],
   "dependencies": {
@@ -25,7 +25,7 @@
     "vcs"
   ],
   "license": "MIT",
-  "repository": "git://github.com/steveukx/git-js.git",
+  "repository": "https://github.com/elastic/simple-git.git",
   "main": "./src/index.js",
   "files": [
     "promise.*",
