@@ -25,6 +25,9 @@ os:
   - osx
   - windows
 
+env:
+  - YARN_GPG=no
+
 jobs:
   include:
     - stage: "deploy"
@@ -55,5 +58,5 @@ script:
 after_success:
   - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -n "$TRAVIS_TAG" ] && [ "DEPLOY" == "true" ]; then
       node scripts/upload.js;
-      yarn publish;
+      npm publish;
     fi
