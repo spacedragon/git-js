@@ -33,7 +33,7 @@ jobs:
       dist: xenial
       node_js: "10"
       env: TARGET_ARCH="x64" EXTENDED_TESTING="true"
-    - stage: "Extended testing"
+    - stage: "deploy"
       os: linux
       dist: xenial
       node_js: "10"
