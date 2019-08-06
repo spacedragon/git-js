@@ -2,6 +2,7 @@
 
 const FS = require('fs');
 const PATH = require('path');
+const os = require('os');
 
 module.exports = function Test (setup, test) {
 
@@ -20,7 +21,7 @@ module.exports = function Test (setup, test) {
 
          return file;
       },
-      root: FS.mkdtempSync((process.env.TMPDIR || '/tmp/') + 'simple-git-test-'),
+      root: FS.mkdtempSync((process.env.TMPDIR || os.tmpdir()) + 'simple-git-test-'),
       get rootResolvedPath () {
          return FS.realpathSync(context.root);
       },

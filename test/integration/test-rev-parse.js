@@ -1,6 +1,7 @@
 'use strict';
 
 const Test = require('./include/runner');
+const fs = require('fs');
 
 const setUp = (context) => {
 
@@ -30,7 +31,7 @@ module.exports = {
       return context.gitP(context.root).revparse(['--show-toplevel'])
          .then((actual) => {
 
-            assert.same(actual, context.rootResolvedPath);
+            assert.same(fs.realpathSync(actual), fs.realpathSync(context.rootResolvedPath));
          });
 
    }),

@@ -11,7 +11,7 @@ const { paths } = require('./util');
 const { binPath, packagePath, nativeDir } = paths(platform);
 
 if (fs.existsSync(binPath)) {
-    console.log('existing binary founded, skipping download.')
+    console.log('binary founded, skipping download.')
 } else {
     let code = 0
     download(platform, packagePath).then(() => {

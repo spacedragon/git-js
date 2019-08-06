@@ -17,7 +17,6 @@ branches:
     - master
 
 stages:
-  - "Extended testing"
   - test
   - "deploy"
 
@@ -28,11 +27,6 @@ os:
 
 jobs:
   include:
-    - stage: "Extended testing"
-      os: linux
-      dist: xenial
-      node_js: "10"
-      env: TARGET_ARCH="x64" EXTENDED_TESTING="true"
     - stage: "deploy"
       os: linux
       dist: xenial
@@ -61,4 +55,5 @@ script:
 after_success:
   - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -n "$TRAVIS_TAG" ] && [ "DEPLOY" == "true" ]; then
       node scripts/upload.js;
+      yarn publish;
     fi

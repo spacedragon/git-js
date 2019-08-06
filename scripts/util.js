@@ -1,5 +1,5 @@
 const path = require('path');
-const os = require('os');
+const nativePaths = require('../src/util/paths');
 
 const packageJson = require('../package.json');
 
@@ -22,9 +22,7 @@ function pkgName(platform) {
 }
 
 function paths(platform) {
-    const nativeDir = path.join(__dirname, '..', '/native/git');
-    const bin = (platform || os.platform()) === 'win32' ? 'git.exe' : 'git';
-    const binPath = path.join(nativeDir ,'bin', bin);
+    const { nativeDir, binPath } = nativePaths(platform); 
     const packagePath = path.join(nativeDir, pkgName(platform));
     return { nativeDir, binPath, packagePath }
 }
