@@ -15,6 +15,7 @@
   "devDependencies": {
     "@kwsites/test-runner": "^0.1.1",
     "aws-sdk": "^2.503.0",
+    "request": "^2.88.0",
     "sinon": "^7.3.2",
     "targz": "^1.0.1"
   },
@@ -29,13 +30,29 @@
   "files": [
     "promise.*",
     "src/",
-    "typings/"
+    "typings/",
+    "scripts/"
   ],
   "scripts": {
     "test": "runner test/**/test*.js ",
     "test:unit": "runner test/unit/test*.js",
     "test:integration": "runner test/integration/test*.js",
     "preversion": "yarn test",
-    "postversion": "npm publish && git push && git push --tags"
+    "postversion": "npm publish && git push && git push --tags",
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "git_natives": {
+    "linux": {
+      "version": "2.22.0",
+      "build": "1"
+    },
+    "darwin": {
+      "version": "2.21.0",
+      "build": "954b7fe"
+    },
+    "win32": {
+      "version": "2.21.0",
+      "build": "954b7fe"
+    }
   }
 }

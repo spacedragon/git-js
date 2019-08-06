@@ -23,6 +23,7 @@ stages:
 os:
   - linux
   - osx
+  - windows
 
 jobs:
   include:
@@ -38,10 +39,11 @@ git:
 install:
   - set -e;
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      docker run -v `pwd`:/build --rm spacedragon/git_builder:v1 /build/native/build.sh;
+      yarn install --ignore-scripts;
+      node scripts/build.js;
       sudo chown -R travis:travis .;
     fi
-  - travis_retry yarn install;
+  - travis_retry yarn install --frozen-lockfile;
 
   # This is a random private key used purely for testing.
 before_script:
@@ -59,5 +61,5 @@ script:
 
 after_success:
   - if [ -n "$TRAVIS_TAG" ] && [ "$EXTENDED_TESTING" != "true" ] && [ "$SKIP_DEPLOY" != "true" ]; then
-      node scripts/upload-s3.js
+      node scripts/upload.js;
     fi

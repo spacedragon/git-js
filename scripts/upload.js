@@ -8,6 +8,17 @@ const s3 = new AWS.S3({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
+const packageJson = require('../package.json');
+
+const pkg = packageJson.git_natives.linux;
+
+const packageName = "git-" + pkg.version+ "-" + pkg.build + "-linux.tar.gz" ;
+
+const params = {
+    Bucket: 'download.elasticsearch.org', 
+    Key: 'code/native-git/' + packageName , 
+}
+
 const uploadFile = (file) => {
   const params = {
     Bucket: 'download.elasticsearch.org', 
@@ -19,4 +30,5 @@ const uploadFile = (file) => {
     console.log(`File uploaded successfully at ${data.Location}`)
   });
 };
+
 pkg().then(packageFile => uploadFile(packageFile))
