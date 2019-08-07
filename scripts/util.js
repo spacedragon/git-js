@@ -23,7 +23,7 @@ function pkgName(platform) {
 
 function paths(platform) {
     const { nativeDir, binPath } = nativePaths(platform); 
-    const packagePath = path.join(nativeDir, pkgName(platform));
+    const packagePath = path.join(nativeDir,'..' , pkgName(platform));
     return { nativeDir, binPath, packagePath }
 }
 

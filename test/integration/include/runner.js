@@ -21,7 +21,7 @@ module.exports = function Test (setup, test) {
 
          return file;
       },
-      root: FS.mkdtempSync((process.env.TMPDIR || os.tmpdir()) + 'simple-git-test-'),
+      root: FS.mkdtempSync(PATH.join(process.env.TMPDIR || os.tmpdir(), 'simple-git-test-')),
       get rootResolvedPath () {
          return FS.realpathSync(context.root);
       },
