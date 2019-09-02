@@ -10,8 +10,8 @@ function isAsyncCall (fn) {
 
 module.exports = function (baseDir) {
 
-   var Git = require('./src/git');
-   var gitFactory = require('./src');
+   var Git = require('./git');
+   var gitFactory = require('./');
    var git;
 
 

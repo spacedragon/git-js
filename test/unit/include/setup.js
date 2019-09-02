@@ -72,7 +72,7 @@
       sandbox.stub(dependencies, 'childProcess').returns(new MockChildProcess());
       sandbox.stub(dependencies, 'buffer').returns(mockBufferFactory(sandbox));
 
-      return git = require('../../../promise')(baseDir);
+      return git = require('../../../lib/promise')(baseDir);
    }
 
    function hasQueuedTasks () {

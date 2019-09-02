@@ -25,8 +25,8 @@ module.exports = function Test (setup, test) {
       get rootResolvedPath () {
          return FS.realpathSync(context.root);
       },
-      git: require('../../../'),
-      gitP: require('../../../promise'),
+      git: require('../../../src'),
+      gitP: require('../../../src/promise'),
       deferred: function () {
          let d = {};
          d.promise = new Promise((resolve, reject) => {

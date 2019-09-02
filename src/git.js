@@ -1,3 +1,6 @@
+import { BatchFileProcessor } from "./responses/BatchFileProcessor";
+import { LsTreeSummary } from "./responses/LsTreeSummary";
+
 (function () {
 
    'use strict';
@@ -1040,6 +1043,26 @@
    };
 
    /**
+    *
+    * @param then
+    * @returns {BatchFileProcessor}
+    */
+   Git.prototype.batchFile = function (then) {
+      var command = ['cat-file', '--batch'];
+      var bfp = new BatchFileProcessor();
+      this._run(command, function(err, data) {
+         then && then(err, bfp);
+      }, {
+         format: 'buffer',
+         stream: {
+            stdIn: bfp.writer,
+            stdOut: bfp.reader
+         }
+      });
+      return bfp;
+   }
+
+   /**
     * Return repository changes.
     *
     * @param {string[]} [options]
@@ -1358,6 +1381,42 @@
    };
 
    /**
+    *
+    * @param {string} rev
+    * @param {string} path
+    * @param {boolean} [opt.showSize]
+    * @param {boolean} [opt.showTree]
+    * @param {boolean} [opt.recursive]
+    * @param {Function} then
+    *
+    * @returns {LsTreeSummary}
+    */
+
+   Git.prototype.lsTree = function (rev, path, opt, then) {
+      var command = ["ls-tree"];
+      if (opt.showTree) {
+         command.push('-t');
+      }
+      if (opt.showTree) {
+         command.push('-l')
+      }
+      if (opt.recursive) {
+         command.push('-r')
+      }
+      command.push(rev)
+      command.push(path)
+      const lsTree = new LsTreeSummary();
+      this._run(command, function (err, data) {
+         then && then(err, lsTree)
+      }, {
+         stream: {
+            stdOut: lsTree.reader
+         }
+      });
+      return lsTree;
+   }
+
+   /**
     * Schedules the supplied command to be run, the command should not include the name of the git binary and should
     * be an array of strings passed as the arguments to the git binary.
     *
@@ -1370,6 +1429,9 @@
     *                                  without killing the remaining stack of commands
     * @param {number} [opt.onError.exitCode]
     * @param {string} [opt.onError.stdErr]
+    * @param {Function} [opt.stream.stdOut]
+    * @param {Function} [opt.stream.stdErr]
+    * @param {StdinWriter} [opt.stream.StdIn]
     *
     * @returns {Git}
     */
@@ -1422,13 +1484,26 @@
             windowsHide: true
          });
 
-         spawned.stdout.on('data', function (buffer) {
-            stdOut.push(buffer);
-         });
+         if (options.stream && options.stream.stdOut) {
+            options.stream.stdOut.attach(spawned.stdout);
+         } else {
+            spawned.stdout.on('data', function (buffer) {
+               stdOut.push(buffer);
+            });
+         }
 
-         spawned.stderr.on('data', function (buffer) {
-            stdErr.push(buffer);
-         });
+         if (options.stream && options.stream.stdErr) {
+            options.stream.stdErr.attach(spawned.stderr);
+         } else {
+            spawned.stderr.on('data', function (buffer) {
+               stdErr.push(buffer);
+            });
+         }
+
+         if (options.stream && options.stream.stdIn) {
+            spawned.stdin.setDefaultEncoding('utf-8');
+            options.stream.stdIn.attach(spawned.stdin);
+         }
 
          spawned.on('error', function (err) {
             stdErr.push(Buffer.from(err.stack, 'ascii'));

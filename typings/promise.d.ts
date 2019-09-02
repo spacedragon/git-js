@@ -1,4 +1,6 @@
-import * as resp from "./typings/response";
+import * as resp from "./response";
+import { BatchFileProcessor } from "./responses/BatchFileProcessor";
+import { LsTreeSummary } from "./responses/LsTreeSummary";
 
 declare function simplegit(basePath?: string): simplegit.SimpleGit;
 
@@ -533,6 +535,13 @@ declare namespace simplegit {
        * Updates repository server info
        */
       updateServerInfo(): Promise<string>;
+
+      batchFile(): Promise<BatchFileProcessor>
+      lsTree(ref: string, path: string, options: {
+         recursive: boolean,
+         showTree: boolean,
+         showSize: boolean
+      }): Promise<LsTreeSummary>
    }
 
    type Options = {[key: string]: null | string | any};
