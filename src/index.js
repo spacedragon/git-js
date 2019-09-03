@@ -20,12 +20,15 @@ module.exports = function (baseDir, useSystemGit) {
             git.customBinary(git_bin);
             if (platform !== 'win32') {
                 const path = require('path');
-                git.env({
-                    'GIT_TEMPLATE_DIR': path.join(git_dir, 'share/git-core/templates'),
-                    'GIT_SSL_CAINFO': path.join(git_dir, 'ssl/cacert.pem'),
-                    'GIT_EXEC_PATH': path.join(git_dir, 'libexec/git-core'),
-                    'PREFIX': git_dir
-                })
+                const env = {
+                   'GIT_TEMPLATE_DIR': path.join(git_dir, 'share/git-core/templates'),
+                   'GIT_EXEC_PATH': path.join(git_dir, 'libexec/git-core'),
+                   'PREFIX': git_dir
+                };
+                if (platform === 'linux') {
+                   env['GIT_SSL_CAINFO'] = path.join(git_dir, 'ssl/cacert.pem');
+                }
+                git.env(env)
             }
         } else {
             throw new Error("Couldn't find embed git binaries.")

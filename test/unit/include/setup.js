@@ -49,7 +49,7 @@
    }
 
    function Instance (baseDir) {
-      var Git = require('../../../src/git');
+      var Git = require('../../../dist/git');
 
       var Buffer = MockBuffer;
       Buffer.concat = sinon.spy(function (things) {
@@ -72,7 +72,7 @@
       sandbox.stub(dependencies, 'childProcess').returns(new MockChildProcess());
       sandbox.stub(dependencies, 'buffer').returns(mockBufferFactory(sandbox));
 
-      return git = require('../../../lib/promise')(baseDir);
+      return git = require('../../../dist/promise')(baseDir);
    }
 
    function hasQueuedTasks () {

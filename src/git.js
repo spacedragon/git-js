@@ -1,5 +1,6 @@
-import { BatchFileProcessor } from "./responses/BatchFileProcessor";
-import { LsTreeSummary } from "./responses/LsTreeSummary";
+const BatchFileProcessor = require("./responses/BatchFileProcessor").BatchFileProcessor;
+const LsTreeSummary = require("./responses/LsTreeSummary").LsTreeSummary;
+const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProcessor;
 
 (function () {
 
@@ -8,7 +9,8 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
    var debug = require('debug')('simple-git');
    var deferred = require('./util/deferred');
    var exists = require('./util/exists');
-   var NOOP = function () {};
+   var NOOP = function () {
+   };
    var responses = require('./responses');
 
    /**
@@ -21,7 +23,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
     *
     * @constructor
     */
-   function Git (baseDir, ChildProcess, Buffer) {
+   function Git(baseDir, ChildProcess, Buffer) {
       this._baseDir = baseDir;
       this._runCache = [];
 
@@ -73,8 +75,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
    Git.prototype.env = function (name, value) {
       if (arguments.length === 1 && typeof name === 'object') {
          this._env = name;
-      }
-      else {
+      } else {
          (this._env = this._env || {})[name] = value;
       }
 
@@ -96,8 +97,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          git._baseDir = workingDirectory;
          if (!exists(workingDirectory, exists.FOLDER)) {
             Git.exception(git, 'Git.cwd: cannot change to non-directory "' + workingDirectory + '"', next);
-         }
-         else {
+         } else {
             next && next(null, workingDirectory);
          }
       });
@@ -167,10 +167,10 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
 
       var splitter = opt.splitter || requireResponseHandler('ListLogSummary').SPLITTER;
       var command = ["stash", "list", "--pretty=format:"
-         + requireResponseHandler('ListLogSummary').START_BOUNDARY
-         + "%H %ai %s%d %aN %ae".replace(/\s+/g, splitter)
-         + requireResponseHandler('ListLogSummary').COMMIT_BOUNDARY
-         ];
+      + requireResponseHandler('ListLogSummary').START_BOUNDARY
+      + "%H %ai %s%d %aN %ae".replace(/\s+/g, splitter)
+      + requireResponseHandler('ListLogSummary').COMMIT_BOUNDARY
+      ];
 
       if (Array.isArray(opt)) {
          command = command.concat(opt);
@@ -193,8 +193,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
 
       if (Array.isArray(options)) {
          command = command.concat(options);
-      }
-      else {
+      } else {
          Git._appendOptions(command, Git.trailingOptionsArgument(arguments));
       }
 
@@ -212,17 +211,28 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
     * @param {Function} [then]
     */
    Git.prototype.clone = function (repoPath, localPath, options, then) {
+      var command = ['clone'];
+      let reader = undefined;
+      if (options && options.progressCallback) {
+         reader = new ProgressProcessor(options.progressCallback);
+         command.push('--progress');
+         delete options.progressCallback
+      }
+
       var next = Git.trailingFunctionArgument(arguments);
-      var command = ['clone'].concat(Git.trailingArrayArgument(arguments));
+      var command = command.concat(Git.trailingArrayArgument(arguments));
 
       for (var i = 0, iMax = arguments.length; i < iMax; i++) {
          if (typeof arguments[i] === 'string') {
             command.push(arguments[i]);
          }
       }
-
       return this._run(command, function (err, data) {
          next && next(err, data);
+      }, {
+         stream: {
+            stdErr: reader,
+         },
       });
    };
 
@@ -263,8 +273,8 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
     */
    Git.prototype.checkoutLatestTag = function (then) {
       var git = this;
-      return this.pull(function() {
-         git.tags(function(err, tags) {
+      return this.pull(function () {
+         git.tags(function (err, tags) {
             git.checkout(tags.latest, then);
          });
       });
@@ -359,8 +369,14 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
     * @param {string} [branch]
     * @param {Function} [then]
     */
-   Git.prototype.fetch = function (remote, branch, then) {
+   Git.prototype.fetch = function (remote, branch, options, then) {
       var command = ["fetch"];
+      let reader = undefined;
+      if (options && options.progressCallback) {
+         reader = new ProgressProcessor(options.progressCallback);
+         command.push('--progress')
+         delete options.progressCallback
+      }
       var next = Git.trailingFunctionArgument(arguments);
       Git._appendOptions(command, Git.trailingOptionsArgument(arguments));
 
@@ -376,6 +392,9 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          command,
          Git._responseHandler(next, 'FetchSummary'),
          {
+            stream: {
+               stdErr: reader
+            },
             concatStdErr: true
          }
       );
@@ -453,8 +472,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
       if (next === mode || typeof mode === 'string' || !mode) {
          var modeStr = ['mixed', 'soft', 'hard'].includes(mode) ? mode : 'soft';
          command.push('--' + modeStr);
-      }
-      else if (Array.isArray(mode)) {
+      } else if (Array.isArray(mode)) {
          command.push.apply(command, mode);
       }
 
@@ -632,8 +650,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
       var command = [];
       if (Array.isArray(commands)) {
          command = commands.slice(0);
-      }
-      else {
+      } else {
          Git._appendOptions(command, Git.trailingOptionsArgument(arguments));
       }
 
@@ -1030,8 +1047,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
 
       if (typeof options === 'string') {
          throw new TypeError('Git#catFile: options must be supplied as an array of strings');
-      }
-      else if (Array.isArray(options)) {
+      } else if (Array.isArray(options)) {
          command.push.apply(command, options);
       }
 
@@ -1050,7 +1066,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
    Git.prototype.batchFile = function (then) {
       var command = ['cat-file', '--batch'];
       var bfp = new BatchFileProcessor();
-      this._run(command, function(err, data) {
+      this._run(command, function (err, data) {
          then && then(err, bfp);
       }, {
          format: 'buffer',
@@ -1075,8 +1091,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          command[0] += ' ' + options;
          this._getLog('warn',
             'Git#diff: supplying options as a single string is now deprecated, switch to an array of strings');
-      }
-      else if (Array.isArray(options)) {
+      } else if (Array.isArray(options)) {
          command.push.apply(command, options);
       }
 
@@ -1117,8 +1132,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          command = command + ' ' + options;
          this._getLog('warn',
             'Git#revparse: supplying options as a single string is now deprecated, switch to an array of strings');
-      }
-      else if (Array.isArray(options)) {
+      } else if (Array.isArray(options)) {
          command.push.apply(command, options);
       }
 
@@ -1145,8 +1159,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          command = command + ' ' + options;
          this._getLog('warn',
             'Git#show: supplying options as a single string is now deprecated, switch to an array of strings');
-      }
-      else if (Array.isArray(options)) {
+      } else if (Array.isArray(options)) {
          command.push.apply(command, options);
       }
 
@@ -1190,7 +1203,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          handler && handler(err, !err && data);
       });
 
-      function interactiveMode (option) {
+      function interactiveMode(option) {
          if (/^-[^\-]/.test(option)) {
             return option.indexOf('i') > 0;
          }
@@ -1266,16 +1279,15 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          return format[k];
       }).join(splitter);
       var command = ["log", "--pretty=format:"
-         + requireResponseHandler('ListLogSummary').START_BOUNDARY
-         + formatstr
-         + requireResponseHandler('ListLogSummary').COMMIT_BOUNDARY
+      + requireResponseHandler('ListLogSummary').START_BOUNDARY
+      + formatstr
+      + requireResponseHandler('ListLogSummary').COMMIT_BOUNDARY
       ];
 
       if (Array.isArray(opt)) {
          command = command.concat(opt);
          opt = {};
-      }
-      else if (typeof arguments[0] === "string" || typeof arguments[1] === "string") {
+      } else if (typeof arguments[0] === "string" || typeof arguments[1] === "string") {
          this._getLog('warn',
             'Git#log: supplying to or from as strings is now deprecated, switch to an options configuration object');
          opt = {
@@ -1340,7 +1352,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
     * @param {Function} [then]
     */
    Git.prototype.checkIsRepo = function (then) {
-      function onError (exitCode, stdErr, done, fail) {
+      function onError(exitCode, stdErr, done, fail) {
          if (exitCode === 128 && /(Not a git repository|Kein Git-Repository)/i.test(stdErr)) {
             return done(false);
          }
@@ -1348,7 +1360,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          fail(stdErr);
       }
 
-      function handler (err, isRepo) {
+      function handler(err, isRepo) {
          then && then(err, String(isRepo).trim() === 'true');
       }
 
@@ -1460,7 +1472,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          var result = deferred();
 
          var attempted = false;
-         var attemptClose = function attemptClose (e) {
+         var attemptClose = function attemptClose(e) {
 
             // closing when there is content, terminate immediately
             if (attempted || stdErr.length || stdOut.length) {
@@ -1485,7 +1497,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          });
 
          if (options.stream && options.stream.stdOut) {
-            options.stream.stdOut.attach(spawned.stdout);
+            options.stream.stdOut.attach(spawned.stdout, stdOut);
          } else {
             spawned.stdout.on('data', function (buffer) {
                stdOut.push(buffer);
@@ -1493,7 +1505,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          }
 
          if (options.stream && options.stream.stdErr) {
-            options.stream.stdErr.attach(spawned.stderr);
+            options.stream.stdErr.attach(spawned.stderr, stdErr);
          } else {
             spawned.stderr.on('data', function (buffer) {
                stdErr.push(buffer);
@@ -1513,11 +1525,11 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          spawned.on('exit', attemptClose);
 
          result.promise.then(function (exitCode) {
-            function done (output) {
+            function done(output) {
                then.call(git, null, output);
             }
 
-            function fail (error) {
+            function fail(error) {
                Git.fail(git, error, then);
             }
 
@@ -1525,11 +1537,9 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
 
             if (exitCode && stdErr.length && options.onError) {
                options.onError(exitCode, Buffer.concat(stdErr).toString('utf-8'), done, fail);
-            }
-            else if (exitCode && stdErr.length) {
+            } else if (exitCode && stdErr.length) {
                fail(Buffer.concat(stdErr).toString('utf-8'));
-            }
-            else {
+            } else {
                if (options.concatStdErr) {
                   [].push.apply(stdOut, stdErr);
                }
@@ -1611,8 +1621,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
          var value = options[key];
          if (typeof value === 'string') {
             command.push(key + '=' + value);
-         }
-         else {
+         } else {
             command.push(key);
          }
       });
@@ -1670,7 +1679,7 @@ import { LsTreeSummary } from "./responses/LsTreeSummary";
     * Requires and returns a response handler based on its named type
     * @param {string} type
     */
-   function requireResponseHandler (type) {
+   function requireResponseHandler(type) {
       return responses[type];
    }
 

@@ -1,4 +1,4 @@
-export class StdoutReader {
+export class StdoutReader implements ReadableStreamHandler{
    private stream: NodeJS.ReadableStream | null = null;
    public onData: (buf: Buffer) => void = () => {};
    public onEnd: () => void = () => {};
@@ -6,7 +6,7 @@ export class StdoutReader {
    constructor() {
    }
 
-   public attach(stream: NodeJS.ReadableStream) {
+   public attach(stream: NodeJS.ReadableStream, _fallback: Buffer[]) {
       this.stream = stream;
       this.stream!.on('data', this.onData);
       this.stream!.on('data', this.onEnd);
@@ -19,4 +19,9 @@ export class StdoutReader {
          yield chunk as Buffer;
       }
    }
+}
+
+
+export interface ReadableStreamHandler {
+   attach(stream: NodeJS.ReadableStream, fallback: Buffer[]): void
 }

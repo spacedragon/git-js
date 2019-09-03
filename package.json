@@ -16,10 +16,13 @@
   },
   "devDependencies": {
     "@kwsites/test-runner": "^0.1.1",
+    "@types/jest": "^24.0.18",
     "@types/node": "^12.7.3",
     "aws-sdk": "^2.503.0",
     "glob": "^7.1.4",
+    "jest": "^24.9.0",
     "sinon": "^7.3.2",
+    "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.6.2"
   },
@@ -39,7 +42,7 @@
   "scripts": {
     "build": "tsc -p .",
     "types": "tsc -d --emitDeclarationOnly --allowJs false --declarationDir ./typings",
-    "test": "yarn run build && ts-node test/runner.js test test/**/test*.* ",
+    "test": "yarn run build && jest && yarn run test:unit && yarn run test:integration",
     "test:unit": "node test/runner.js test/unit/test*.*",
     "test:integration": "node test/runner.js test/integration/test*.js",
     "preversion": "yarn test",
