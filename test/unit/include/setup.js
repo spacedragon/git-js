@@ -67,7 +67,7 @@
    }
 
    function instanceP (sandbox, baseDir) {
-      const dependencies = require('../../../src/util/dependencies');
+      const dependencies = require('../../../dist/util/dependencies');
 
       sandbox.stub(dependencies, 'childProcess').returns(new MockChildProcess());
       sandbox.stub(dependencies, 'buffer').returns(mockBufferFactory(sandbox));

@@ -2,8 +2,8 @@
 
 const {theCommandRun, restore, Instance, closeWith} = require('./include/setup');
 const sinon = require('sinon');
-const BranchSummary = require('../../src/responses/BranchSummary');
-const BranchDeleteSummary = require('../../src/responses/BranchDeleteSummary');
+const BranchSummary = require('../../dist/responses/BranchSummary');
+const BranchDeleteSummary = require('../../dist/responses/BranchDeleteSummary');
 
 var git, sandbox;
 
