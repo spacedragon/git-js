@@ -29,7 +29,7 @@ export class LsTreeSummary {
       command.push(rev);
       command.push(path);
 
-      git.git._run(command, () => {}, {
+      git.newGit().git._run(command, () => {}, {
          stream: {
             stdOut: this.reader
          }

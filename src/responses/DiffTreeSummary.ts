@@ -22,9 +22,9 @@ export class DiffTreeSummary extends BatchProcessor<Job> {
    public readonly writer: StdinWriter = new StdinWriter();
 
    constructor(git: SimpleGit,
-               opt: { showTree?: boolean, showSize?: boolean, recursive?: boolean, detectRename?:boolean }) {
+               opt: { showTree?: boolean, showSize?: boolean, recursive?: boolean, detectRename?: boolean }) {
       super();
-      var command = ["diff-tree", '--raw', '--shortstat', '--stdin', '--no-commit-id'];
+      var command = ["diff-tree", '--raw', '--stdin', '-m'];
       if (opt.showTree) {
          command.push('-t');
       }
@@ -35,7 +35,8 @@ export class DiffTreeSummary extends BatchProcessor<Job> {
          command.push('-M');
       }
 
-      git.git._run(command, () => {}, {
+      git.newGit().git._run(command, () => {
+      }, {
          stream: {
             stdOut: this.reader,
             stdIn: this.writer
@@ -49,37 +50,33 @@ export class DiffTreeSummary extends BatchProcessor<Job> {
 
    protected handleData(data: Buffer, job: Job): boolean {
       const str = data.toString('utf-8');
-      if (str.trim() === "") { // no diff
-         job.resolve([]);
-         return true;
-      } else if (str.startsWith(job.line)) {
-         job.reject(new Error(`invalid id `+job.line));
+      if (!str.startsWith(job.line)) {
+         job.reject(new Error("invalid data from process"));
          return true;
       }
-      const p = /\d+ files? changed/g;
-      if (p.test(str)) {
-         const diff_pattern = /:(\d{6}) (\d{6}) ([a-h0-9]{40}) ([a-h0-9]{40}) ([ACDMRTUX])\d*\s+(.*)/g;
-         let arr;
-         let diffs = [];
-         while ((arr = diff_pattern.exec(str)) !== null) {
-            const [, srcMode, dstMode, srcId, dstId, type, path] = arr;
-            diffs.push({
-               srcMode: parseInt(srcMode),
-               dstMode: parseInt(dstMode),
-               srcId,
-               dstId,
-               type,
-               path
-            } as TreeDiff);
-         }
-         job.resolve(diffs);
-         return true;
+      // assume the string is a complete output
+
+      const diff_pattern = /:(\d{6}) (\d{6}) ([a-h0-9]{40}) ([a-h0-9]{40}) ([ACDMRTUX])\d*\s+(.*)/g;
+      let arr;
+      let diffs = [];
+      while ((arr = diff_pattern.exec(str)) !== null) {
+         const [, srcMode, dstMode, srcId, dstId, type, path] = arr;
+         diffs.push({
+            srcMode: parseInt(srcMode),
+            dstMode: parseInt(dstMode),
+            srcId,
+            dstId,
+            type,
+            path
+         } as TreeDiff);
       }
-      return false;
+      job.resolve(diffs);
+
+      return true;
    }
 
    protected startJob(job: Job) {
-      this.writer.write(job.line+'\n');
+      this.writer.write(job.line + '\n');
    }
 
    public getDiff(revA: string, revB?: string) {

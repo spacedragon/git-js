@@ -4,27 +4,27 @@ if (typeof Promise === 'undefined') {
    throw new ReferenceError("Promise wrappers must be enabled to use the promise API");
 }
 
-function isAsyncCall (fn) {
+function isAsyncCall(fn) {
    return /^[^\)]+then\s*\)/.test(fn) || /\._run\(/.test(fn);
 }
 
-module.exports = function (baseDir, useSystemGit) {
+module.exports = promisify;
+
+function promisify(baseDir, useSystemGit) {
 
    var Git = require('./git');
    var gitFactory = require('./init');
    var git;
 
-
    var chain = Promise.resolve();
 
    try {
       git = gitFactory(baseDir, useSystemGit);
-   }
-   catch (e) {
+   } catch (e) {
       chain = Promise.reject(e);
    }
 
-   return Object.keys(Git.prototype).reduce(function (promiseApi, fn) {
+   var obj = Object.keys(Git.prototype).reduce(function (promiseApi, fn) {
       if (/^_|then/.test(fn)) {
          return promiseApi;
       }
@@ -33,9 +33,7 @@ module.exports = function (baseDir, useSystemGit) {
          promiseApi[fn] = git ? asyncWrapper(fn, git) : function () {
             return chain;
          };
-      }
-
-      else {
+      } else {
          promiseApi[fn] = git ? syncWrapper(fn, git, promiseApi) : function () {
             return promiseApi;
          };
@@ -43,9 +41,17 @@ module.exports = function (baseDir, useSystemGit) {
 
       return promiseApi;
 
-   }, { git: git });
+   }, {
+      git: git,
+   });
 
-   function asyncWrapper (fn, git) {
+   obj.newGit = function () {
+      return promisify(baseDir, useSystemGit);
+   };
+
+   return obj;
+
+   function asyncWrapper(fn, git) {
       return function () {
          var args = [].slice.call(arguments);
 
@@ -60,8 +66,7 @@ module.exports = function (baseDir, useSystemGit) {
                args.push(function (err, result) {
                   if (err) {
                      reject(new Error(err));
-                  }
-                  else {
+                  } else {
                      resolve(result);
                   }
                });
@@ -72,7 +77,7 @@ module.exports = function (baseDir, useSystemGit) {
       };
    }
 
-   function syncWrapper (fn, git, api) {
+   function syncWrapper(fn, git, api) {
       return function () {
          git[fn].apply(git, arguments);
 

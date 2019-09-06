@@ -536,6 +536,11 @@ declare namespace simplegit {
       updateServerInfo(): Promise<string>;
 
       git: any;
+
+      /**
+       * create a new git instance using the same baseDir
+       */
+      newGit(): SimpleGit;
    }
 
    type Options = {[key: string]: null | string | any};
@@ -570,6 +575,8 @@ declare namespace simplegit {
       stdout: NodeJS.ReadableStream,
       stderr: NodeJS.ReadableStream
    ) => void
+
+
 }
 
 export = simplegit;

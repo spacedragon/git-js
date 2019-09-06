@@ -32,7 +32,7 @@ export class BatchFileProcessor {
       this.reader.onEnd = this.onEnd.bind(this);
       var command = ['cat-file', '--batch'];
       // @ts-ignore
-      git.git._run(command, () => {}, {
+      git.newGit().git._run(command, () => {}, {
          format: 'buffer',
          stream: {
             stdIn: this.writer,

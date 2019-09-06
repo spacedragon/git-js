@@ -7,7 +7,7 @@ export { StatusResult, FetchResult, DiffResult, TagResult, PullResult, BranchSum
    LogOptions, Options, outputHandler
 } from './promise'
 
-export function simplegit(baseDir: string, useSystemGit: boolean): gitPromise.SimpleGit {
+export function simplegit(baseDir?: string, useSystemGit?: boolean): gitPromise.SimpleGit {
    return gitPromise(baseDir, useSystemGit)
 }
 
