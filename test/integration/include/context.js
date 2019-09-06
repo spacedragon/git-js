@@ -19,6 +19,9 @@ module.exports = function () {
 
          return file;
       },
+      rename(dir, path, path2) {
+          FS.renameSync(PATH.join(context.dir(dir), path), PATH.join(context.dir(dir), path2));
+      },
       root: FS.mkdtempSync(PATH.join(process.env.TMPDIR || os.tmpdir(), 'simple-git-test-')),
       get rootResolvedPath() {
          return FS.realpathSync(context.root);

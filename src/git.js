@@ -1,5 +1,6 @@
 const BatchFileProcessor = require("./responses/BatchFileProcessor").BatchFileProcessor;
 const LsTreeSummary = require("./responses/LsTreeSummary").LsTreeSummary;
+const DiffTreeSummary = require("./responses/DiffTreeSummary").DiffTreeSummary;
 const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProcessor;
 
 (function () {
@@ -1409,7 +1410,7 @@ const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProce
       if (opt.showTree) {
          command.push('-t');
       }
-      if (opt.showTree) {
+      if (opt.showSize) {
          command.push('-l')
       }
       if (opt.recursive) {
@@ -1426,6 +1427,29 @@ const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProce
          }
       });
       return lsTree;
+   }
+
+   Git.prototype.batchDiffTree = function(opt, then) {
+      var command = ["diff-tree", '--raw', '--shortstat', '--stdin', '--no-commit-id'];
+      if (opt.showTree) {
+         command.push('-t');
+      }
+      if (opt.recursive) {
+         command.push('-r');
+      }
+      if (opt.detectRename) {
+         command.push('-M');
+      }
+      const diffTree = new DiffTreeSummary();
+      this._run(command, function (err, data) {
+         then && then(err, diffTree)
+      }, {
+         stream: {
+            stdOut: diffTree.reader,
+            stdIn: diffTree.writer
+         }
+      });
+      return diffTree;
    }
 
    /**

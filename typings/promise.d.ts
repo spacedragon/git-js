@@ -1,6 +1,7 @@
 import * as resp from "./response";
 import { BatchFileProcessor } from "./responses/BatchFileProcessor";
 import { LsTreeSummary } from "./responses/LsTreeSummary";
+import { DiffTreeSummary } from "../src/responses/DiffTreeSummary";
 
 declare function simplegit(basePath?: string): simplegit.SimpleGit;
 
@@ -210,6 +211,9 @@ declare namespace simplegit {
        * @returns {Promise<DiffResult>} Parsed diff summary result.
        */
       diffSummary(options?: string[]): Promise<DiffResult>;
+
+
+      batchDiffTree(options?: any): Promise<DiffTreeSummary>;
 
       /**
        * Sets an environment variable for the spawned child process, either supply both a name and value as strings or
