@@ -1,5 +1,5 @@
 import Test from "./include/runner";
-import { DiffTreeSummary } from "../../src/responses/DiffTreeSummary";
+import { DiffTreeSummary } from "../../dist";
 
 let commit1: any;
 let commit2: any;
@@ -29,20 +29,21 @@ const setUp = (context : any) => {
 
 export default {
    'show one tree diff': new Test(setUp, async (context: any, test: any) => {
-      const git = context.git(context.root);
-      const diff: DiffTreeSummary = git.diffTree({
+      const ref = await context.gitP(context.root).revparse([commit3.commit]);
+
+      const git = context.gitP(context.root);
+      const diff: DiffTreeSummary = new DiffTreeSummary(git, {
          showTree: true,
          recursive: true,
          detectRename: true
       });
-      const ref = await context.gitP(context.root).revparse([commit3.commit]);
       const diffs = await diff.getDiff(ref);
       test.ok(diffs.length > 0);
       diff.end();
    }),
    'show multiple tree diff in batch mode': new Test(setUp, async (context: any, test: any) => {
-      const git = context.git(context.root);
-      const diff: DiffTreeSummary = git.diffTree({
+      const git = context.gitP(context.root);
+      const diff: DiffTreeSummary = new DiffTreeSummary(git, {
          showTree: true,
          recursive: true,
          detectRename: true

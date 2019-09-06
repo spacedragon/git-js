@@ -1,6 +1,3 @@
-const BatchFileProcessor = require("./responses/BatchFileProcessor").BatchFileProcessor;
-const LsTreeSummary = require("./responses/LsTreeSummary").LsTreeSummary;
-const DiffTreeSummary = require("./responses/DiffTreeSummary").DiffTreeSummary;
 const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProcessor;
 
 (function () {
@@ -1060,26 +1057,6 @@ const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProce
    };
 
    /**
-    *
-    * @param then
-    * @returns {BatchFileProcessor}
-    */
-   Git.prototype.batchFile = function (then) {
-      var command = ['cat-file', '--batch'];
-      var bfp = new BatchFileProcessor();
-      this._run(command, function (err, data) {
-         then && then(err, bfp);
-      }, {
-         format: 'buffer',
-         stream: {
-            stdIn: bfp.writer,
-            stdOut: bfp.reader
-         }
-      });
-      return bfp;
-   }
-
-   /**
     * Return repository changes.
     *
     * @param {string[]} [options]
@@ -1392,65 +1369,6 @@ const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProce
          return file.trim()
       });
    };
-
-   /**
-    *
-    * @param {string} rev
-    * @param {string} path
-    * @param {boolean} [opt.showSize]
-    * @param {boolean} [opt.showTree]
-    * @param {boolean} [opt.recursive]
-    * @param {Function} then
-    *
-    * @returns {LsTreeSummary}
-    */
-
-   Git.prototype.lsTree = function (rev, path, opt, then) {
-      var command = ["ls-tree"];
-      if (opt.showTree) {
-         command.push('-t');
-      }
-      if (opt.showSize) {
-         command.push('-l')
-      }
-      if (opt.recursive) {
-         command.push('-r')
-      }
-      command.push(rev)
-      command.push(path)
-      const lsTree = new LsTreeSummary();
-      this._run(command, function (err, data) {
-         then && then(err, lsTree)
-      }, {
-         stream: {
-            stdOut: lsTree.reader
-         }
-      });
-      return lsTree;
-   }
-
-   Git.prototype.batchDiffTree = function(opt, then) {
-      var command = ["diff-tree", '--raw', '--shortstat', '--stdin', '--no-commit-id'];
-      if (opt.showTree) {
-         command.push('-t');
-      }
-      if (opt.recursive) {
-         command.push('-r');
-      }
-      if (opt.detectRename) {
-         command.push('-M');
-      }
-      const diffTree = new DiffTreeSummary();
-      this._run(command, function (err, data) {
-         then && then(err, diffTree)
-      }, {
-         stream: {
-            stdOut: diffTree.reader,
-            stdIn: diffTree.writer
-         }
-      });
-      return diffTree;
-   }
 
    /**
     * Schedules the supplied command to be run, the command should not include the name of the git binary and should

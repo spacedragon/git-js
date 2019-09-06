@@ -1,7 +1,7 @@
 {
   "name": "@elastic/simple-git",
   "description": "Simple GIT interface for node.js, bundled with native git natived",
-  "version": "1.124.0-elastic.3",
+  "version": "1.124.0-elastic.4",
   "author": "Steve King <steve@mydev.co>",
   "contributors": [
     {
@@ -37,15 +37,14 @@
   "main": "./dist/index.js",
   "files": [
     "dist/",
-    "typings/",
     "scripts/"
   ],
   "scripts": {
     "build": "tsc -p .",
-    "types": "tsc -d --emitDeclarationOnly --allowJs false --declarationDir ./typings",
+    "types": "tsc -d --emitDeclarationOnly --allowJs false --declarationDir ./dist && cp src/*.d.ts dist",
     "test": "yarn run build && yarn run test:unit && yarn run test:integration",
     "test:unit": "ts-node ./node_modules/mocha/bin/mocha test/runner.ts test/unit/test*.*",
-    "test:integration": "ts-node ./node_modules/mocha/bin/mocha test/runner.ts test/integration/test*.js",
+    "test:integration": "ts-node ./node_modules/mocha/bin/mocha test/runner.ts test/integration/test*.* --timeout 10000",
     "preversion": "yarn test",
     "postversion": "npm publish && git push && git push --tags",
     "postinstall": "node scripts/postinstall.js",

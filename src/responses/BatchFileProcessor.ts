@@ -1,5 +1,6 @@
 import { StdinWriter } from "../util/stdin_writer";
 import { StdoutReader } from "../util/stdout_reader";
+import { SimpleGit } from "../promise";
 
 interface Job {
    id: string,
@@ -25,9 +26,19 @@ export class BatchFileProcessor {
    private data: Buffer[] = [];
    private currentJob: Job | undefined = undefined;
 
-   constructor() {
+   constructor(git: SimpleGit) {
+
       this.reader.onData = this.onData.bind(this);
       this.reader.onEnd = this.onEnd.bind(this);
+      var command = ['cat-file', '--batch'];
+      // @ts-ignore
+      git.git._run(command, () => {}, {
+         format: 'buffer',
+         stream: {
+            stdIn: this.writer,
+            stdOut: this.reader
+         }
+      });
    }
 
    private onEnd() {

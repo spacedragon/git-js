@@ -1,6 +1,7 @@
 
 var Git = require('./git');
 
+
 module.exports = function (baseDir, useSystemGit) {
 
    var dependencies = require('./util/dependencies');

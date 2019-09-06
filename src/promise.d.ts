@@ -1,9 +1,6 @@
 import * as resp from "./response";
-import { BatchFileProcessor } from "./responses/BatchFileProcessor";
-import { LsTreeSummary } from "./responses/LsTreeSummary";
-import { DiffTreeSummary } from "../src/responses/DiffTreeSummary";
 
-declare function simplegit(basePath?: string): simplegit.SimpleGit;
+declare function simplegit(basePath?: string, useSystemGit?: boolean): simplegit.SimpleGit;
 
 declare namespace simplegit {
 
@@ -212,8 +209,6 @@ declare namespace simplegit {
        */
       diffSummary(options?: string[]): Promise<DiffResult>;
 
-
-      batchDiffTree(options?: any): Promise<DiffTreeSummary>;
 
       /**
        * Sets an environment variable for the spawned child process, either supply both a name and value as strings or
@@ -540,12 +535,7 @@ declare namespace simplegit {
        */
       updateServerInfo(): Promise<string>;
 
-      batchFile(): Promise<BatchFileProcessor>
-      lsTree(ref: string, path: string, options: {
-         recursive: boolean,
-         showTree: boolean,
-         showSize: boolean
-      }): Promise<LsTreeSummary>
+      git: any;
    }
 
    type Options = {[key: string]: null | string | any};

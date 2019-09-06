@@ -8,17 +8,17 @@ function isAsyncCall (fn) {
    return /^[^\)]+then\s*\)/.test(fn) || /\._run\(/.test(fn);
 }
 
-module.exports = function (baseDir) {
+module.exports = function (baseDir, useSystemGit) {
 
    var Git = require('./git');
-   var gitFactory = require('./');
+   var gitFactory = require('./init');
    var git;
 
 
    var chain = Promise.resolve();
 
    try {
-      git = gitFactory(baseDir);
+      git = gitFactory(baseDir, useSystemGit);
    }
    catch (e) {
       chain = Promise.reject(e);
@@ -43,7 +43,7 @@ module.exports = function (baseDir) {
 
       return promiseApi;
 
-   }, {});
+   }, { git: git });
 
    function asyncWrapper (fn, git) {
       return function () {

@@ -1,5 +1,6 @@
 import { StdinWriter } from "../util/stdin_writer";
 import { BatchProcessor } from "../util/BatchProcessor";
+import { SimpleGit } from "../promise";
 
 interface Job {
    line: string,
@@ -20,8 +21,26 @@ export interface TreeDiff {
 export class DiffTreeSummary extends BatchProcessor<Job> {
    public readonly writer: StdinWriter = new StdinWriter();
 
-   constructor() {
+   constructor(git: SimpleGit,
+               opt: { showTree?: boolean, showSize?: boolean, recursive?: boolean, detectRename?:boolean }) {
       super();
+      var command = ["diff-tree", '--raw', '--shortstat', '--stdin', '--no-commit-id'];
+      if (opt.showTree) {
+         command.push('-t');
+      }
+      if (opt.recursive) {
+         command.push('-r');
+      }
+      if (opt.detectRename) {
+         command.push('-M');
+      }
+
+      git.git._run(command, () => {}, {
+         stream: {
+            stdOut: this.reader,
+            stdIn: this.writer
+         }
+      });
    }
 
    protected failJob(job: Job, error: Error) {
@@ -34,10 +53,10 @@ export class DiffTreeSummary extends BatchProcessor<Job> {
          job.resolve([]);
          return true;
       } else if (str.startsWith(job.line)) {
-         job.reject(new Error(`invalid id `+job.line))
+         job.reject(new Error(`invalid id `+job.line));
          return true;
       }
-      const p = /\d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)/g;
+      const p = /\d+ files? changed/g;
       if (p.test(str)) {
          const diff_pattern = /:(\d{6}) (\d{6}) ([a-h0-9]{40}) ([a-h0-9]{40}) ([ACDMRTUX])\d*\s+(.*)/g;
          let arr;

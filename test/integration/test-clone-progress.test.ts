@@ -1,7 +1,7 @@
 'use strict';
 
-import { Progress } from "../../src/responses/ProgressProcessor";
-import Test from "./include/runner";
+ import Test from "./include/runner";
+import { Progress } from "../../dist";
 
 export default {
    'clone repo will receive progress': new Test(()=> {}, async (context: any, assert: any) => {

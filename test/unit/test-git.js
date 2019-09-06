@@ -1,6 +1,6 @@
 'use strict';
 
-const Git = require('../../');
+const Git = require('../../src/init');
 const {restore, Instance, childProcessEmits} = require('./include/setup');
 const sinon = require('sinon');
 
