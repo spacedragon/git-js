@@ -53,9 +53,9 @@ export class LsTreeSummary {
       if (previous.length > 0) {
          yield previous;
       }
-   }
-
-   public async* iterator() {
+   } 
+   
+   public async* iterator(): AsyncIterableIterator<FileItem> {
       for await (const line of this.lines()) {
          let m = line.match(ItemRegex);
          if (m) {
