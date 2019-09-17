@@ -327,6 +327,7 @@ ${ START_BOUNDARY }207601debebc170830f2921acf2b6b27034c3b1f::2016-01-03 15:50:58
             `--pretty=format:${ START_BOUNDARY }%H ò %ai ò %s ò %D ò %b ò %aN ò %ae${commitSplitter}`,
             "--max-count=10",
             "--follow",
+            "--",
             "/foo/bar.txt"
          ], theCommandRun());
          test.done();
