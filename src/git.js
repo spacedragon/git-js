@@ -1345,10 +1345,10 @@ const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProce
       }
 
       function handler(err, isRepo) {
-         then && then(err, String(isRepo).trim() === 'true');
+         then && then(err, String(isRepo).split('\n').some(line => line.trim() === 'true'));
       }
 
-      return this._run(['rev-parse', '--is-inside-work-tree'], handler, {onError: onError});
+      return this._run(['rev-parse', '--is-inside-work-tree', '--is-bare-repository'], handler, {onError: onError});
    };
 
    Git.prototype._rm = function (_files, options, then) {
