@@ -1,7 +1,7 @@
 {
   "name": "@elastic/simple-git",
   "description": "Simple GIT interface for node.js, bundled with native git natived",
-  "version": "1.124.0-elastic.11",
+  "version": "1.124.0-elastic.12",
   "author": "Steve King <steve@mydev.co>",
   "contributors": [
     {
@@ -19,6 +19,7 @@
     "@types/glob": "^7.1.1",
     "@types/jest": "^24.0.18",
     "@types/node": "^12.7.3",
+    "@types/sinon": "^7.0.13",
     "aws-sdk": "^2.503.0",
     "create-jest-runner": "^0.5.3",
     "glob": "^7.1.4",

@@ -3,7 +3,7 @@
 const {theCommandRun, restore, Instance, closeWith} = require('./include/setup');
 const sinon = require('sinon');
 
-const DiffSummary = require('../../src/responses/DiffSummary');
+const DiffSummary = require('../../dist/responses/DiffSummary');
 
 let git, sandbox;
 

@@ -1216,6 +1216,16 @@ const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProce
       );
       return this.exec(then);
    };
+   /**
+    * Show blame for a file
+    * @param {string} revision
+    * @param {string} file
+    */
+   Git.prototype.blame = function(revision, file, then) {
+      var command = ['blame', '--incremental', revision, file];
+      var handler = Git.trailingFunctionArgument(arguments);
+      return this._run(command, Git._responseHandler(handler, 'BlameSummary'));
+   }
 
    /**
     * Show commit logs from `HEAD` to the first commit.

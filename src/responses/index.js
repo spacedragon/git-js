@@ -12,4 +12,5 @@ module.exports = {
    PullSummary: require('./PullSummary'),
    StatusSummary: require('./StatusSummary'),
    TagList: require('./TagList'),
+   BlameSummary: require('./BlameSummary').BlameSummary
 };
