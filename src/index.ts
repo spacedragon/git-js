@@ -4,7 +4,7 @@ export { ProgressProcessor, Progress, ProgressCallback } from './responses/Progr
 export { LsTreeSummary, FileItem } from './responses/LsTreeSummary'
 export { BatchFileProcessor } from './responses/BatchFileProcessor'
 export { StatusResult, FetchResult, DiffResult, TagResult, PullResult, BranchSummary, CommitSummary,
-   LogOptions, Options, outputHandler
+   LogOptions, Options, outputHandler, SimpleGit
 } from './promise'
 
 export function simplegit(baseDir?: string, useSystemGit?: boolean): gitPromise.SimpleGit {

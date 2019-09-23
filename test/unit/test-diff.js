@@ -138,6 +138,20 @@ exports.diff = {
       test.done();
    },
 
+   'recognises files renamed' (test) {
+
+      const summary = DiffSummary.parse(`
+         abc => def | 0
+         1 files changed, 0 insertion(+)
+      `);
+
+      test.deepEqual(summary.files, [
+         { file: 'abc', rename: 'def',  changes: 0, insertions: 0, deletions: 0, binary: false },
+      ]);
+
+      test.done();
+   },
+
    'recognises binary files' (test) {
 
       const summary = DiffSummary.parse(`

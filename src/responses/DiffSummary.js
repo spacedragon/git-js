@@ -66,13 +66,24 @@ function textFileChange (line, files) {
 
    if (line) {
       var alterations = (line[3] || '').trim();
-      files.push({
-         file: line[1].trim(),
+      var file = line[1].trim();
+      var idx = file.indexOf(' => ');
+      var rename;
+      if (idx >=0) {
+         rename = file.slice(idx + 4);
+         file = file.slice(0, idx);
+      }
+      var d = {
+         file: file,
          changes: parseInt(line[2], 10),
          insertions: alterations.replace(/-/g, '').length,
          deletions: alterations.replace(/\+/g, '').length,
          binary: false
-      });
+      }
+      if (rename) {
+         d.rename = rename;
+      }
+      files.push(d);
 
       return true;
    }
