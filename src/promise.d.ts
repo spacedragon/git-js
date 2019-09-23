@@ -1,5 +1,5 @@
 import * as resp from "./response";
-
+ 
 declare function simplegit(basePath?: string, useSystemGit?: boolean): simplegit.SimpleGit;
 
 declare namespace simplegit {
@@ -69,6 +69,9 @@ declare namespace simplegit {
        * @returns {Promise<BranchSummary>}
        */
       branchLocal(): Promise<BranchSummary>;
+
+
+      blame(revision: string, file: string): Promise<resp.BlameSummary>;
 
       /**
        * Returns a list of objects in a tree based on commit hash.
