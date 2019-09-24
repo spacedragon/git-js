@@ -34,7 +34,9 @@ export class BlameSummary {
                 properties[key] = line.slice(idx + 1).trim()
             }
         }
-        commit.message = properties['summary'];
+        if (properties.hasOwnProperty('summary')){
+            commit.message = properties['summary'];
+        }
         if (properties.hasOwnProperty('author')) {
             commit.author = this.parseSingature(properties, 'author');
         }

@@ -1,7 +1,6 @@
 import { BlameSummary } from '../../dist/responses/BlameSummary';
 const {theCommandRun, restore, Instance, closeWith} = require('./include/setup');
 import sinon from 'sinon';
-import { SimpleGit } from '../../dist/promise';
 
 let git: any, sandbox: any;
 
@@ -24,7 +23,7 @@ exports.setUp = function (done: any) {
        done();
     },
 
-    'parse summary' (test: any) {
+    'parse blame' (test: any) {
         const blames = BlameSummary.parse(`
         8a3b96d768b8ed48313b8cd544a1cfd790dc5a49 110 110 33
         author Author Tester
@@ -38,15 +37,19 @@ exports.setUp = function (done: any) {
         summary some commit message
         previous 077ae4dc652d13f86a01e23f6646fac251006b79 NOTICE.txt
         filename NOTICE.txt
+        8a3b96d768b8ed48313b8cd544a1cfd790dc5a49 120 120 33
+        previous 077ae4dc652d13f86a01e23f6646fac251006b79 NOTICE.txt
+        filename NOTICE.txt
    `).blames;
         
-        test.equal(blames.length, 1);
+        test.equal(blames.length, 2);
         var blame = blames[0];
         test.equal(blame.sourceLine, 110);
         test.equal(blame.resultLine, 110);
         test.equal(blame.lines, 33);
         test.equal(blame.commit!.author!.name, 'Author Tester');
         test.equal(blame.commit.committer!.email, 'noreply@github.com');
+        test.equal(blame.commit.message, 'some commit message');
 
         test.done();
      },
