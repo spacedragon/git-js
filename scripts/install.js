@@ -1,13 +1,12 @@
-const { paths } = require('./util');
 const { download, unpack } = require('./download');
+const fs = require('fs');
 
-function install(platform) {
-    const { packagePath, nativeDir } = paths(platform);
+function install(platform, downloadTo, unpackTo) {
 
-    return download(platform, packagePath).then(() => {
-        return unpack(packagePath, nativeDir)
+    return download(platform, downloadTo).then(() => {
+        return unpack(downloadTo, unpackTo)
     }).finally(() => {
-        fs.unlink(packagePath, console.error);
+        fs.unlink(downloadTo, console.error);
     })
 }
 
