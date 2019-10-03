@@ -4,6 +4,5 @@ node_modules/
 *.bak
 *.log
 .vscode/
-native/git/ 
-native/*.tar.gz 
+native
 dist/
