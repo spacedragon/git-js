@@ -1,0 +1,141 @@
+#!/usr/bin/env groovy
+
+@Library('apm@current') _
+
+pipeline {
+  agent { label 'linux && immutable' }
+  environment {
+    REPO = 'simple-git'
+    BASE_DIR = "src/github.com/elastic/${env.REPO}"
+    YARN_GPG = 'no'
+  }
+  options {
+    timeout(time: 1, unit: 'HOURS')
+    buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '20'))
+    timestamps()
+    ansiColor('xterm')
+    disableResume()
+    durabilityHint('PERFORMANCE_OPTIMIZED')
+  }
+  parameters {
+    booleanParam(name: 'publish_to_npm', defaultValue: false, description: 'Publish to NPM.')
+  }
+  triggers {
+    issueCommentTrigger('(?i).*jenkins\\W+run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
+  }
+  stages {
+    stage('Checkout') {
+      options { skipDefaultCheckout() }
+      steps {
+        deleteDir()
+        gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true)
+        stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+      }
+    }
+    stage('Build Linux') {
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+      }
+      steps {
+        withGithubNotify(context: 'Build Linux') {
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}") {
+            script {
+              docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                env.HOME = "${WORKSPACE}"
+                sh(label: 'Build NodeJS', script: 'cd /app && ./.ci/scripts/build-linux.sh')
+                sh(label: 'Yarn Install', script: 'cd /app && yarn install --frozen-lockfile')
+              }
+            }
+          }
+          stash allowEmpty: true, name: 'compiledSource', useDefaultExcludes: false
+        }
+      }
+    }
+    stage('Tests') {
+      parallel {
+        stage('Unit Tests') {
+          // agent { label 'linux && immutable' } Reusing top level build agent
+          options { skipDefaultCheckout() }
+          steps {
+            deleteDir()
+            unstash 'compiledSource'
+            dir("${BASE_DIR}") {
+              withGithubNotify(context: 'Unit Test', tab: 'tests') {
+                script {
+                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                    env.HOME = "${WORKSPACE}"
+                    sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci:unit')
+                  }
+                }
+              }
+            }
+          }
+          post {
+            always {
+              junit(allowEmptyResults: true, keepLongStdio: true, testResults: "**/TEST-unit.xml")
+            }
+          }
+        }
+        stage('Integration Tests') {
+          agent { label 'linux && immutable' }
+          options { skipDefaultCheckout() }
+          steps {
+            deleteDir()
+            unstash 'compiledSource'
+            dir("${BASE_DIR}") {
+              withGithubNotify(context: 'Integration Test', tab: 'tests') {
+                script {
+                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                    env.HOME = "${WORKSPACE}"
+                    sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci:integration')
+                  }
+                }
+              }
+            }
+          }
+          post {
+            always {
+              junit(allowEmptyResults: true, keepLongStdio: true, testResults: "**/TEST-integration.xml")
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy') {
+      options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        allOf {
+          tag pattern: 'v\\d+.*', comparator: 'REGEXP'
+          expression { return params.publish_to_npm }
+        }
+      }
+      steps {
+        withGithubNotify(context: 'Deploy') {
+          deleteDir()
+          unstash 'compiledSource'
+          dir("${BASE_DIR}") {
+            withSecretVault(secret: 'secret', user_var_name: 'ACCESS_KEY', pass_var_name: 'SECRET_ACCESS_KEY'){
+              withSecretVault(secret: 'secret', pass_var_name: 'NPM_PASSWORD'){
+                script {
+                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                    env.HOME = "${WORKSPACE}"
+                    sh(label: 'Upload NodeJS', script: 'cd /app && ./.ci/scripts/upload.sh')
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  post {
+    cleanup {
+      notifyBuildResult()
+    }
+  }
+}
