@@ -6,3 +6,4 @@ node_modules/
 .vscode/
 native
 dist/
+test-results

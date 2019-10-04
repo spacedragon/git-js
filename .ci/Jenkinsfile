@@ -64,7 +64,7 @@ pipeline {
             script {
               docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
                 env.HOME = "${WORKSPACE}"
-                sh(label: 'Unit Tests', script: 'cd /app && yarn run test')
+                sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci')
               }
             }
           }
