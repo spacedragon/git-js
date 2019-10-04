@@ -3,7 +3,7 @@
 @Library('apm@current') _
 
 pipeline {
-  agent { label 'docker && immutable' }
+  agent { label 'linux && immutable' }
   environment {
     REPO = 'simple-git'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
@@ -54,20 +54,52 @@ pipeline {
         }
       }
     }
-    stage('Unit Tests') {
-      options { skipDefaultCheckout() }
-      steps {
-        deleteDir()
-        unstash 'compiledSource'
-        dir("${BASE_DIR}") {
-          withGithubNotify(context: 'Unit Test', tab: 'tests') {
-            script {
-              docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-                env.HOME = "${WORKSPACE}"
-                sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci')
+    stage('Tests') {
+      parallel {
+        stage('Unit Tests') {
+          // agent { label 'linux && immutable' } Reusing top level build agent
+          options { skipDefaultCheckout() }
+          steps {
+            deleteDir()
+            unstash 'compiledSource'
+            dir("${BASE_DIR}") {
+              withGithubNotify(context: 'Unit Test', tab: 'tests') {
+                script {
+                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                    env.HOME = "${WORKSPACE}"
+                    sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci:unit')
+                  }
+                }
               }
             }
-            junit(allowEmptyResults: true, keepLongStdio: true, testResults: "**/TEST-*.xml")
+          }
+          post {
+            always {
+              junit(allowEmptyResults: true, keepLongStdio: true, testResults: "**/TEST-unit.xml")
+            }
+          }
+        }
+        stage('Integration Tests') {
+          agent { label 'linux && immutable' }
+          options { skipDefaultCheckout() }
+          steps {
+            deleteDir()
+            unstash 'compiledSource'
+            dir("${BASE_DIR}") {
+              withGithubNotify(context: 'Integration Test', tab: 'tests') {
+                script {
+                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                    env.HOME = "${WORKSPACE}"
+                    sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci:integration')
+                  }
+                }
+              }
+            }
+          }
+          post {
+            always {
+              junit(allowEmptyResults: true, keepLongStdio: true, testResults: "**/TEST-integration.xml")
+            }
           }
         }
       }
