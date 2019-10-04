@@ -67,6 +67,7 @@ pipeline {
                 sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci')
               }
             }
+            junit(allowEmptyResults: true, keepLongStdio: true, testResults: "**/TEST-*.xml")
           }
         }
       }
