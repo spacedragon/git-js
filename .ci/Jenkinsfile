@@ -118,8 +118,8 @@ pipeline {
           deleteDir()
           unstash 'compiledSource'
           dir("${BASE_DIR}") {
-            withSecretVault(secret: 'secret', user_var_name: 'ACCESS_KEY', pass_var_name: 'SECRET_ACCESS_KEY'){
-              withSecretVault(secret: 'secret', pass_var_name: 'NPM_PASSWORD'){
+            withSecretVault(secret: 'secret/code-team/ci/aws-upload-key', user_var_name: 'ACCESS_KEY', pass_var_name: 'SECRET_ACCESS_KEY'){
+              withSecretVault(secret: 'secret/code-team/ci/npm-token', pass_var_name: 'NPM_PASSWORD'){
                 script {
                   docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
                     env.HOME = "${WORKSPACE}"
