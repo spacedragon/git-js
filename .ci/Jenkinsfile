@@ -41,12 +41,11 @@ pipeline {
         withGithubNotify(context: 'Build Linux') {
           deleteDir()
           unstash 'source'
-          dir("${BASE_DIR}") {
-            script {
-              docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-                env.HOME = "${WORKSPACE}"
-                sh(label: 'Build NodeJS', script: 'cd /app && ./.ci/scripts/build-linux.sh')
-                sh(label: 'Yarn Install', script: 'cd /app && yarn install --frozen-lockfile')
+          script {
+            docker.image("node:10").inside(){
+              dir("${BASE_DIR}"){
+                sh(label: 'Build NodeJS', script: './.ci/scripts/build-linux.sh')
+                sh(label: 'Yarn Install', script: 'yarn install --frozen-lockfile')
               }
             }
           }
@@ -62,12 +61,11 @@ pipeline {
           steps {
             deleteDir()
             unstash 'compiledSource'
-            dir("${BASE_DIR}") {
+            script {
               withGithubNotify(context: 'Unit Test', tab: 'tests') {
-                script {
-                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-                    env.HOME = "${WORKSPACE}"
-                    sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci:unit')
+                docker.image("node:10").inside(){
+                  dir("${BASE_DIR}") {
+                    sh(label: 'Unit Tests', script: 'yarn run test:ci:unit')
                   }
                 }
               }
@@ -85,12 +83,11 @@ pipeline {
           steps {
             deleteDir()
             unstash 'compiledSource'
-            dir("${BASE_DIR}") {
+            script {
               withGithubNotify(context: 'Integration Test', tab: 'tests') {
-                script {
-                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-                    env.HOME = "${WORKSPACE}"
-                    sh(label: 'Unit Tests', script: 'cd /app && yarn run test:ci:integration')
+                docker.image("node:10").inside(){
+                  dir("${BASE_DIR}") {
+                    sh(label: 'Unit Tests', script: 'yarn run test:ci:integration')
                   }
                 }
               }
@@ -117,13 +114,12 @@ pipeline {
         withGithubNotify(context: 'Deploy') {
           deleteDir()
           unstash 'compiledSource'
-          dir("${BASE_DIR}") {
+          script {
             withSecretVault(secret: 'secret/code-ci/aws-upload-key', user_var_name: 'ACCESS_KEY', pass_var_name: 'SECRET_ACCESS_KEY'){
               withSecretVault(secret: 'secret/code-ci/npm-token', pass_var_name: 'NPM_PASSWORD'){
-                script {
-                  docker.image("node:10").inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-                    env.HOME = "${WORKSPACE}"
-                    sh(label: 'Upload NodeJS', script: 'cd /app && ./.ci/scripts/upload.sh')
+                docker.image("node:10").inside(){
+                  dir("${BASE_DIR}") {
+                    sh(label: 'Upload NodeJS', script: './.ci/scripts/upload.sh')
                   }
                 }
               }
