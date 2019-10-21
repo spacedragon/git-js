@@ -32,29 +32,26 @@ export default {
       const ref = await context.gitP(context.root).revparse([commit3.commit]);
 
       const git = context.gitP(context.root);
-      const diff: DiffTreeSummary = new DiffTreeSummary(git, {
+      const diff: DiffTreeSummary = new DiffTreeSummary(git, ref, undefined, {
          showTree: true,
          recursive: true,
          detectRename: true
       });
-      const diffs = await diff.getDiff(ref);
+      const diffs = await diff.all();
       test.ok(diffs.length > 0);
-      diff.end();
    }),
-   'show multiple tree diff in batch mode': new Test(setUp, async (context: any, test: any) => {
+   'with summary' : new Test(setUp, async (context: any, test: any) => {
       const git = context.gitP(context.root);
-      const diff: DiffTreeSummary = new DiffTreeSummary(git, {
+      const diff: DiffTreeSummary = new DiffTreeSummary(git, "HEAD~2", "HEAD", {
          showTree: true,
          recursive: true,
-         detectRename: true
+         detectRename: true,
+         summary: true
       });
-      let gitP = context.gitP(context.root);
-      const fullid2 = await gitP.revparse([commit2.commit]);
-      let diffs = await diff.getDiff(fullid2);
+      const diffs = await diff.all();
       test.ok(diffs.length > 0);
-      const fullid1 = await gitP.revparse([commit3.commit]);
-      diffs = await diff.getDiff(fullid1);
-      test.ok(diffs.length > 0);
-      diff.end();
-   })
+      test.equal(diff.summary!.fileChanged, 1)
+      test.equal(diff.summary!.insertions, 3)
+      test.equal(diff.summary!.deletions, 3)
+   }),
 }
