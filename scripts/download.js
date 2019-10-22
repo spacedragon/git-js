@@ -10,9 +10,9 @@ function downloadUrl(platform) {
     if (platform === 'linux') {
         return `https://download.elasticsearch.org/code/native-git/${packageName}`;
     } else if (platform === 'win32') {
-        return `https://github.com/desktop/dugite-native/releases/download/v${pkg.version}/${packageName}`
+        return `https://github.com/desktop/dugite-native/releases/download/v${pkg.tag}/${packageName}`
     } else if (platform === 'darwin') {
-        return `https://github.com/desktop/dugite-native/releases/download/v${pkg.version}/${packageName}`
+        return `https://github.com/desktop/dugite-native/releases/download/v${pkg.tag}/${packageName}`
     } else {
         throw new Error('unsupported platform ' + platform);
     }
@@ -39,6 +39,7 @@ function exists(platform) {
 
 function download(platform, dest) {
     const url = downloadUrl(platform);
+    console.log('Downloading package from '+ url)
     return new Promise((resolve, reject) => {  
         const dir = path.dirname(dest);
         fs.mkdirSync(dir, { recursive:true });

@@ -1,7 +1,7 @@
 {
   "name": "@elastic/simple-git",
   "description": "Simple GIT interface for node.js, bundled with native git natived",
-  "version": "1.124.0-elastic.17",
+  "version": "1.124.0-elastic.18",
   "author": "Steve King <steve@mydev.co>",
   "contributors": [
     {
@@ -61,12 +61,14 @@
       "build": "1"
     },
     "darwin": {
-      "version": "2.21.0",
-      "build": "954b7fe"
+      "version": "2.19.2",
+      "build": "26d300d",
+      "tag": "2.19.2-2"
     },
     "win32": {
-      "version": "2.21.0",
-      "build": "954b7fe"
+      "version": "2.19.2",
+      "build": "26d300d",
+      "tag": "2.19.2-2"
     }
   }
 }

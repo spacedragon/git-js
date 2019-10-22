@@ -1222,7 +1222,7 @@ const ProgressProcessor = require("./responses/ProgressProcessor").ProgressProce
     * @param {string} file
     */
    Git.prototype.blame = function(revision, file, then) {
-      var command = ['blame', '--incremental', revision, file];
+      var command = ['blame', '--incremental', revision, '--', file];
       var handler = Git.trailingFunctionArgument(arguments);
       return this._run(command, Git._responseHandler(handler, 'BlameSummary'));
    }

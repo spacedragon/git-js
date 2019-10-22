@@ -56,7 +56,7 @@ exports.setUp = function (done: any) {
   
      'with summary' (test: any) {
         git.blame('HEAD', 'test.file', (err: any, summary: BlameSummary) => { 
-            test.same(['blame', '--incremental', 'HEAD', 'test.file'], theCommandRun());
+            test.same(['blame', '--incremental', 'HEAD', "--", 'test.file'], theCommandRun());
             const blames = summary.blames;
             test.equal(blames.length, 2);
             var blame = blames[0];
