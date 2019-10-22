@@ -1,4 +1,3 @@
-import { StdinWriter } from "../util/stdin_writer";
 import { SimpleGit } from "../promise";
 import { StdoutReader } from "../util/stdout_reader";
 
@@ -34,7 +33,11 @@ export enum DiffKind {
 export class DiffTreeSummary {
    public readonly reader: StdoutReader = new StdoutReader();
 
-   public summary: { insertions: number, deletions: number, fileChanged: number } | null = null;
+   public summary: { insertions: number, deletions: number, fileChanged: number }  = {
+      insertions: 0,
+      deletions: 0,
+      fileChanged: 0
+   };
    constructor(readonly git: SimpleGit, revA: string, revB?: string,
       readonly opt: {
          showTree?: boolean,
@@ -142,6 +145,9 @@ export class DiffTreeSummary {
          ret.insertions = pm.replace('-', '').length;
          ret.deletions = pm.replace('+', '').length;
       }
+      this.summary.insertions += ret.insertions || 0;
+      this.summary.deletions += ret.deletions || 0;
+      this.summary.fileChanged += 1;
       return ret;
    }
 
@@ -149,13 +155,12 @@ export class DiffTreeSummary {
       const p = /(\d+) files? changed, (\d+) insertions?\(\+\), (\d+) deletions?\(\-\)/;
       const m = line.match(p);
       if (m) {
-         return {
+         this.summary = {
             insertions: parseInt(m[1]),
             deletions: parseInt(m[2]),
             fileChanged: parseInt(m[3])
          }
       }
-      return null;
    }
 
    public async* iterator(): AsyncIterableIterator<TreeDiff> {
@@ -170,7 +175,7 @@ export class DiffTreeSummary {
                   yield diff;
                }
             } else {
-               this.summary = this.handleSummary(line);
+               this.handleSummary(line);
             }
          } else {
             const diff = this.handleRaw(line);
