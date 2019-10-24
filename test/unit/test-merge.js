@@ -2,7 +2,7 @@
 
 const {theCommandRun, restore, Instance, closeWith, errorWith} = require('./include/setup');
 const sinon = require('sinon');
-const MergeSummary = require('../../src/responses/MergeSummary');
+const MergeSummary = require('../../dist/responses/MergeSummary');
 
 var git, sandbox;
 

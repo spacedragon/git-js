@@ -1,6 +1,6 @@
-import * as resp from "./typings/response";
-
-declare function simplegit(basePath?: string): simplegit.SimpleGit;
+import * as resp from "./response";
+ 
+declare function simplegit(basePath?: string, useSystemGit?: boolean): simplegit.SimpleGit;
 
 declare namespace simplegit {
 
@@ -69,6 +69,9 @@ declare namespace simplegit {
        * @returns {Promise<BranchSummary>}
        */
       branchLocal(): Promise<BranchSummary>;
+
+
+      blame(revision: string, file: string): Promise<resp.BlameSummary>;
 
       /**
        * Returns a list of objects in a tree based on commit hash.
@@ -208,6 +211,7 @@ declare namespace simplegit {
        * @returns {Promise<DiffResult>} Parsed diff summary result.
        */
       diffSummary(options?: string[]): Promise<DiffResult>;
+
 
       /**
        * Sets an environment variable for the spawned child process, either supply both a name and value as strings or
@@ -533,6 +537,13 @@ declare namespace simplegit {
        * Updates repository server info
        */
       updateServerInfo(): Promise<string>;
+
+      git: any;
+
+      /**
+       * create a new git instance using the same baseDir
+       */
+      newGit(): SimpleGit;
    }
 
    type Options = {[key: string]: null | string | any};
@@ -567,6 +578,8 @@ declare namespace simplegit {
       stdout: NodeJS.ReadableStream,
       stderr: NodeJS.ReadableStream
    ) => void
+
+
 }
 
 export = simplegit;

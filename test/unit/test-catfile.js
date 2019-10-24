@@ -2,7 +2,6 @@
 
 const setup = require('./include/setup');
 const sinon = require('sinon');
-const FetchSummary = require('../../src/responses/FetchSummary');
 
 var git, sandbox;
 

@@ -1,23 +1,33 @@
 {
-  "name": "simple-git",
-  "description": "Simple GIT interface for node.js",
-  "version": "1.124.0",
+  "name": "@elastic/simple-git",
+  "description": "Simple GIT interface for node.js, bundled with native git natived",
+  "version": "1.124.0-elastic.18",
   "author": "Steve King <steve@mydev.co>",
   "contributors": [
     {
-      "name": "Steve King",
-      "email": "steve@mydev.co"
+      "name": "Yulong Huang",
+      "email": "yulong.huang@elastic.co"
     }
   ],
   "dependencies": {
-    "debug": "^4.0.1"
+    "debug": "^4.0.1",
+    "request": "^2.88.0",
+    "targz": "^1.0.1"
   },
   "devDependencies": {
     "@kwsites/test-runner": "^0.1.1",
+    "@types/glob": "^7.1.1",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.3",
+    "@types/sinon": "^7.0.13",
     "aws-sdk": "^2.503.0",
-    "request": "^2.88.0",
+    "create-jest-runner": "^0.5.3",
+    "glob": "^7.1.4",
+    "mocha": "^6.2.0",
+    "mocha-junit-reporter": "^1.23.1",
     "sinon": "^7.3.2",
-    "targz": "^1.0.1"
+    "ts-node": "^8.3.0",
+    "typescript": "^3.6.2"
   },
   "keywords": [
     "git",
@@ -25,21 +35,25 @@
     "vcs"
   ],
   "license": "MIT",
-  "repository": "git://github.com/steveukx/git-js.git",
-  "main": "./src/index.js",
+  "repository": "https://github.com/elastic/simple-git.git",
+  "main": "./dist/index.js",
   "files": [
-    "promise.*",
-    "src/",
-    "typings/",
+    "dist/",
     "scripts/"
   ],
   "scripts": {
-    "test": "runner test/**/test*.js ",
-    "test:unit": "runner test/unit/test*.js",
-    "test:integration": "runner test/integration/test*.js",
+    "build": "tsc -p .",
+    "types": "tsc -d --emitDeclarationOnly --allowJs false --declarationDir ./dist && cp src/*.d.ts dist",
+    "test": "yarn run build && yarn run test:unit && yarn run test:integration",
+    "test:ci": "yarn run build && yarn run test:ci:unit && yarn run test:ci:integration",
+    "test:unit": "ts-node ./node_modules/mocha/bin/mocha test/runner.ts test/unit/test*.*",
+    "test:ci:unit": "ts-node ./node_modules/mocha/bin/mocha test/runner.ts test/unit/test*.* --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/TEST-unit.xml",
+    "test:integration": "ts-node ./node_modules/mocha/bin/mocha test/runner.ts test/integration/test*.* --timeout 30000",
+    "test:ci:integration": "ts-node ./node_modules/mocha/bin/mocha test/runner.ts test/integration/test*.* --timeout 30000 --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/TEST-integration.xml",
     "preversion": "yarn test",
     "postversion": "npm publish && git push && git push --tags",
-    "postinstall": "node scripts/postinstall.js"
+    "postinstall": "node scripts/postinstall.js",
+    "prepublish": "yarn run build && yarn run types"
   },
   "git_natives": {
     "linux": {
@@ -47,12 +61,14 @@
       "build": "1"
     },
     "darwin": {
-      "version": "2.21.0",
-      "build": "954b7fe"
+      "version": "2.19.2",
+      "build": "26d300d",
+      "tag": "2.19.2-2"
     },
     "win32": {
-      "version": "2.21.0",
-      "build": "954b7fe"
+      "version": "2.19.2",
+      "build": "26d300d",
+      "tag": "2.19.2-2"
     }
   }
 }

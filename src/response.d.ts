@@ -1,4 +1,3 @@
-
 export interface BranchDeletionSummary {
    branch: string;
    hash: any;
@@ -33,6 +32,7 @@ export interface CommitSummary {
 
 export interface DiffResultTextFile {
     file: string;
+    rename?: string;
     changes: number,
     insertions: number;
     deletions: number;
@@ -176,3 +176,5 @@ export interface ListLogSummary<T = DefaultLogFields> {
    total: number;
    latest: T & ListLogLine;
 }
+
+export { BlameSummary, Blame, Commit, Singature }  from './responses/BlameSummary';

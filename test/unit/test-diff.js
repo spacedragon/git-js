@@ -3,7 +3,7 @@
 const {theCommandRun, restore, Instance, closeWith} = require('./include/setup');
 const sinon = require('sinon');
 
-const DiffSummary = require('../../src/responses/DiffSummary');
+const DiffSummary = require('../../dist/responses/DiffSummary');
 
 let git, sandbox;
 
@@ -133,6 +133,20 @@ exports.diff = {
       test.deepEqual(summary.files, [
          { file: 'abc', changes: 0, insertions: 0, deletions: 0, binary: false },
          { file: 'def', changes: 1, insertions: 1, deletions: 0, binary: false },
+      ]);
+
+      test.done();
+   },
+
+   'recognises files renamed' (test) {
+
+      const summary = DiffSummary.parse(`
+         abc => def | 0
+         1 files changed, 0 insertion(+)
+      `);
+
+      test.deepEqual(summary.files, [
+         { file: 'abc', rename: 'def',  changes: 0, insertions: 0, deletions: 0, binary: false },
       ]);
 
       test.done();
